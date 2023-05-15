@@ -371,31 +371,67 @@ namespace pantallaMaestra
 
         
         //No funciona todavia xd
-        public SQLiteCommand deleteDato()
+        public int deleteDato()
         {
             string queryEliminarProducto = string.Format("delete from {0} where id=@id", tableName);
 
-            using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB()) {
-                SQLiteCommand cmd_deleteDato = new SQLiteCommand(queryEliminarProducto, conexionDB);
-
-
-                if (cbProdAEliminar.SelectedIndex == -1)
+            using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB())
+            {
+                conexionDB.Open();
+                using (SQLiteCommand cmd_deleteDato = new SQLiteCommand(queryEliminarProducto, conexionDB))
                 {
-                    MessageBox.Show("Error, selecciona un ID para eliminar un producto");
-                    return null;
+                    if (cbProdAEliminar.SelectedIndex == -1)
+                    {
+                        MessageBox.Show("Error, selecciona un ID para eliminar un producto");
+                        return 0;
+                    }
+
+                    cmd_deleteDato.Parameters.AddWithValue("@id", Convert.ToInt32(cbProdAEliminar.SelectedItem.ToString()));
+                    int filasAfectadas = cmd_deleteDato.ExecuteNonQuery();
+                    return filasAfectadas;
                 }
-
-                MessageBox.Show(":D");
-
-
-                cmd_deleteDato.Parameters.AddWithValue("@id", Convert.ToInt32(cbProdAEliminar.SelectedItem.ToString()));
-
-
-                return cmd_deleteDato;
-
             }
         }
 
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+
+                using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB()) {
+
+
+                    int filasAfectadas = deleteDato();
+
+                    conexionDB.Open();
+
+
+                    if (filasAfectadas > 0)
+                    {
+                        MessageBox.Show("Producto eliminado con exito");
+                    }
+                    else
+                    { 
+                        MessageBox.Show("Error al eliminar el producto");
+                    }
+
+                    updateDgv();
+                    
+
+                    conexionDB.Close();
+                }
+
+            }
+            catch (SQLiteException ex)
+            {
+                MessageBox.Show("Error (sql):\n" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error:\n" + ex);
+            }
+        }
 
 
         /*
@@ -489,55 +525,6 @@ namespace pantallaMaestra
         }
 
         //No funciona todavia xd
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
-                
-            try {
-
-                SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
-                
-                SQLiteCommand cmd_deleteDato = deleteDato();
-                conexionDB.Open();
-
-
-
-                if (cmd_deleteDato != null && cmd_deleteDato.GetType() == typeof(SQLiteCommand))
-                {
-                    
-
-                    int filasAfectadas = cmd_deleteDato.ExecuteNonQuery();
-                    MessageBox.Show("Producto eliminado con exito");
-
-                    if (filasAfectadas > 0)
-                    {
-                        MessageBox.Show("se realizaron eliminaciones");
-                    }
-                    else
-                    {
-                        MessageBox.Show("No se realizaron eliminaciones X");
-
-                    }
-
-                    updateDgv();
-                }
-                else
-                {
-
-                    MessageBox.Show("Error al eliminar el producto");
-
-                }
-
-                conexionDB.Close();
-
-            }
-            catch (SQLiteException ex)
-            {
-                MessageBox.Show("Error (sql):\n" + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error:\n" + ex.Message);
-            }
-        }
+        
     }
 }
