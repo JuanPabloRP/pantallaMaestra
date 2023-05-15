@@ -45,6 +45,10 @@
             this.txtNuevoNombre = new System.Windows.Forms.TextBox();
             this.lblIdAEditar = new System.Windows.Forms.Label();
             this.cbIdAEditar = new System.Windows.Forms.ComboBox();
+            this.BtnPrincipio = new System.Windows.Forms.Button();
+            this.BtnAtras = new System.Windows.Forms.Button();
+            this.BtnSiguiente = new System.Windows.Forms.Button();
+            this.BtnFinal = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatos)).BeginInit();
             this.SuspendLayout();
             // 
@@ -53,8 +57,9 @@
             this.dgvDatos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDatos.Location = new System.Drawing.Point(353, 49);
             this.dgvDatos.Name = "dgvDatos";
-            this.dgvDatos.Size = new System.Drawing.Size(421, 422);
+            this.dgvDatos.Size = new System.Drawing.Size(421, 410);
             this.dgvDatos.TabIndex = 0;
+            this.dgvDatos.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDatos_CellClick_1);
             // 
             // btnRead
             // 
@@ -66,7 +71,7 @@
             this.btnRead.TabIndex = 1;
             this.btnRead.Text = "Traer datos";
             this.btnRead.UseVisualStyleBackColor = true;
-            this.btnRead.Click += new System.EventHandler(this.btnRead_Click);
+            this.btnRead.Click += new System.EventHandler(this.BtnRead_Click);
             // 
             // btnCreate
             // 
@@ -78,7 +83,7 @@
             this.btnCreate.TabIndex = 2;
             this.btnCreate.Text = "Crear dato";
             this.btnCreate.UseVisualStyleBackColor = true;
-            this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
+            this.btnCreate.Click += new System.EventHandler(this.BtnCreate_Click);
             // 
             // btnUpdate
             // 
@@ -90,7 +95,7 @@
             this.btnUpdate.TabIndex = 3;
             this.btnUpdate.Text = "Modificar dato";
             this.btnUpdate.UseVisualStyleBackColor = true;
-            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+            this.btnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
             // 
             // btnDelete
             // 
@@ -102,7 +107,7 @@
             this.btnDelete.TabIndex = 4;
             this.btnDelete.Text = "Eliminar dato";
             this.btnDelete.UseVisualStyleBackColor = true;
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            this.btnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
             // 
             // cbProdAEliminar
             // 
@@ -204,11 +209,63 @@
             this.cbIdAEditar.Size = new System.Drawing.Size(106, 21);
             this.cbIdAEditar.TabIndex = 19;
             // 
+            // BtnPrincipio
+            // 
+            this.BtnPrincipio.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnPrincipio.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.BtnPrincipio.Location = new System.Drawing.Point(482, 467);
+            this.BtnPrincipio.Name = "BtnPrincipio";
+            this.BtnPrincipio.Size = new System.Drawing.Size(49, 31);
+            this.BtnPrincipio.TabIndex = 20;
+            this.BtnPrincipio.Text = "<<";
+            this.BtnPrincipio.UseVisualStyleBackColor = true;
+            this.BtnPrincipio.Click += new System.EventHandler(this.BtnPrincipio_Click);
+            // 
+            // BtnAtras
+            // 
+            this.BtnAtras.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnAtras.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.BtnAtras.Location = new System.Drawing.Point(537, 467);
+            this.BtnAtras.Name = "BtnAtras";
+            this.BtnAtras.Size = new System.Drawing.Size(49, 31);
+            this.BtnAtras.TabIndex = 21;
+            this.BtnAtras.Text = "<";
+            this.BtnAtras.UseVisualStyleBackColor = true;
+            this.BtnAtras.Click += new System.EventHandler(this.BtnAtras_Click);
+            // 
+            // BtnSiguiente
+            // 
+            this.BtnSiguiente.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnSiguiente.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.BtnSiguiente.Location = new System.Drawing.Point(592, 467);
+            this.BtnSiguiente.Name = "BtnSiguiente";
+            this.BtnSiguiente.Size = new System.Drawing.Size(49, 31);
+            this.BtnSiguiente.TabIndex = 22;
+            this.BtnSiguiente.Text = ">";
+            this.BtnSiguiente.UseVisualStyleBackColor = true;
+            this.BtnSiguiente.Click += new System.EventHandler(this.BtnSiguiente_Click);
+            // 
+            // BtnFinal
+            // 
+            this.BtnFinal.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.BtnFinal.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.BtnFinal.Location = new System.Drawing.Point(647, 467);
+            this.BtnFinal.Name = "BtnFinal";
+            this.BtnFinal.Size = new System.Drawing.Size(49, 31);
+            this.BtnFinal.TabIndex = 23;
+            this.BtnFinal.Text = ">>";
+            this.BtnFinal.UseVisualStyleBackColor = true;
+            this.BtnFinal.Click += new System.EventHandler(this.BtnFinal_Click);
+            // 
             // frmPantallaMaestra
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(786, 510);
+            this.Controls.Add(this.BtnFinal);
+            this.Controls.Add(this.BtnSiguiente);
+            this.Controls.Add(this.BtnAtras);
+            this.Controls.Add(this.BtnPrincipio);
             this.Controls.Add(this.cbIdAEditar);
             this.Controls.Add(this.lblIdAEditar);
             this.Controls.Add(this.lblNuevoPrecio);
@@ -254,6 +311,10 @@
         private System.Windows.Forms.TextBox txtNuevoNombre;
         private System.Windows.Forms.Label lblIdAEditar;
         private System.Windows.Forms.ComboBox cbIdAEditar;
+        private System.Windows.Forms.Button BtnPrincipio;
+        private System.Windows.Forms.Button BtnAtras;
+        private System.Windows.Forms.Button BtnSiguiente;
+        private System.Windows.Forms.Button BtnFinal;
     }
 }
 

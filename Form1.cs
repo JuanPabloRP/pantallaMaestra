@@ -30,6 +30,8 @@ namespace pantallaMaestra
         public frmPantallaMaestra()
         {
             InitializeComponent();
+
+            ValidarDgv();
         }
 
 
@@ -126,6 +128,8 @@ namespace pantallaMaestra
             
             try
             {
+                
+
                 SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
                 
                 SQLiteCommand cmd_GetDatos = GetDatos();
@@ -155,7 +159,9 @@ namespace pantallaMaestra
 
                 }
                 datareader_sqlite.Close();
-                conexionDB.Close();                
+                conexionDB.Close();
+
+                
 
             }
             catch (SQLiteException ex)
@@ -168,7 +174,7 @@ namespace pantallaMaestra
             }
 
 
-
+            ValidarDgv();
 
         }
 
@@ -419,14 +425,15 @@ namespace pantallaMaestra
          */
 
 
-        private void btnRead_Click(object sender, EventArgs e)
+        private void BtnRead_Click(object sender, EventArgs e)
         {
+
             UpdateDgv();
             //se cierra conexionDB que se abrio en GetDatos
             
         }
 
-        private void btnCreate_Click(object sender, EventArgs e)
+        private void BtnCreate_Click(object sender, EventArgs e)
         {
             try
             {
@@ -454,7 +461,7 @@ namespace pantallaMaestra
 
         }
 
-        private void btnUpdate_Click(object sender, EventArgs e)
+        private void BtnUpdate_Click(object sender, EventArgs e)
         {
 
             try
@@ -503,7 +510,7 @@ namespace pantallaMaestra
         }
 
         
-        private void btnDelete_Click(object sender, EventArgs e)
+        private void BtnDelete_Click(object sender, EventArgs e)
         {
 
             try
@@ -544,5 +551,76 @@ namespace pantallaMaestra
             }
         }
 
+
+        /* navegacion */
+
+        private void ValidarDgv()
+        {
+            if (dgvDatos.RowCount > 0)
+            {
+                BtnPrincipio.Enabled = true;
+                BtnAtras.Enabled = true;
+                BtnSiguiente.Enabled = true;
+                BtnFinal.Enabled = true;
+            }
+            else
+            {
+                BtnPrincipio.Enabled = false;
+                BtnAtras.Enabled = false;
+                BtnSiguiente.Enabled = false;
+                BtnFinal.Enabled = false;
+            }
+        }
+
+        private int selectedRowIndex = -1;
+
+        private void dgvDatos_CellClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0) {
+                selectedRowIndex = e.RowIndex;
+            }
+        }
+
+
+        private void BtnPrincipio_Click(object sender, EventArgs e)
+        {
+            selectedRowIndex = 0;
+
+
+                dgvDatos.Rows[selectedRowIndex].Selected = true;
+                dgvDatos.CurrentCell = dgvDatos.Rows[selectedRowIndex].Cells[0];
+            
+        }
+
+        private void BtnAtras_Click(object sender, EventArgs e)
+        {
+            if (selectedRowIndex > 0)
+            {
+                selectedRowIndex--;
+                dgvDatos.Rows[selectedRowIndex].Selected = true;
+                dgvDatos.CurrentCell = dgvDatos.Rows[selectedRowIndex].Cells[0];
+            }
+        }
+
+
+        private void BtnSiguiente_Click(object sender, EventArgs e)
+        {
+            if (selectedRowIndex < dgvDatos.Rows.Count - 1)
+            {
+                selectedRowIndex++;
+                dgvDatos.Rows[selectedRowIndex].Selected = true;
+                dgvDatos.CurrentCell = dgvDatos.Rows[selectedRowIndex].Cells[0];
+            }
+        }
+
+        private void BtnFinal_Click(object sender, EventArgs e)
+        {
+
+            selectedRowIndex = dgvDatos.Rows.Count - 1;
+            dgvDatos.Rows[selectedRowIndex].Selected = true;
+            dgvDatos.CurrentCell = dgvDatos.Rows[selectedRowIndex].Cells[0];
+        }
+
+        
     }
 }
