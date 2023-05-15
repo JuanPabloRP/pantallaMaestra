@@ -97,7 +97,7 @@ namespace pantallaMaestra
                     SQLiteCommand cmd_getProducts = new SQLiteCommand(getProductos, conexionDB);
 
                     //cada vez que obtengamos los datos tambien actualizamos los combo box
-                    llenarCombobox(cbDatoAEliminar);
+                    llenarCombobox(cbProdAEliminar);
                     llenarCombobox(cbIdAEditar);
                 
                     
@@ -250,31 +250,35 @@ namespace pantallaMaestra
         //se llena los comboBox con los ids (sirve para el metodo de actualizar y eliminar)
 
         public void llenarCombobox(ComboBox comboBox)
-        {  
-                //llenamos los combobox con los ids disponibles
-                try
+        {
+            //llenamos los combobox con los ids disponibles
+            try
+            {
+                SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
+
+                conexionDB.Open();
+                string getIDs = string.Format("SELECT id FROM {0}", tableName);
+
+                SQLiteCommand cmd_getIDs = new SQLiteCommand(getIDs, conexionDB);
+
+                SQLiteDataReader datareader_sqlite = cmd_getIDs.ExecuteReader();
+
+                comboBox.Items.Clear();
+
+
+                 while (datareader_sqlite.Read())
                 {
-                    SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
+                    //Obtenemos los ids
+                    int idProd = datareader_sqlite.GetInt32(0);
+                        
+                    //los colocamos en el comboBox
+                    comboBox.Items.Add(idProd);
 
-                    conexionDB.Open();
-                    string getIDs = string.Format("SELECT id FROM {0}",  tableName);
+                }
+                
 
-                    SQLiteCommand cmd_getIDs = new SQLiteCommand(getIDs, conexionDB);
 
-                    SQLiteDataReader datareader_sqlite = cmd_getIDs.ExecuteReader();
-
-                    comboBox.Items.Clear();
-
-                    while (datareader_sqlite.Read())
-                    {
-                        //Obtenemos los ids
-                        int idProd = datareader_sqlite.GetInt32(0);
-  
-                        //los colocamos en el comboBox
-                        comboBox.Items.Add(idProd);
-
-                    }
-                    MessageBox.Show("El combo box ha sido llenado");
+                MessageBox.Show("El combo box ha sido llenado");
                     datareader_sqlite.Close();
 
                     conexionDB.Close();
@@ -365,6 +369,77 @@ namespace pantallaMaestra
             return cmd_actualizar;
         }
 
+        
+        //No funciona todavia xd
+        public SQLiteCommand deleteDato()
+        {
+            string queryEliminarProducto = string.Format("delete from {0} where id=@id", tableName);
+
+            using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB()) {
+                SQLiteCommand cmd_deleteDato = new SQLiteCommand(queryEliminarProducto, conexionDB);
+
+
+                if (cbProdAEliminar.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Error, selecciona un ID para eliminar un producto");
+                    return null;
+                }
+
+                MessageBox.Show(":D");
+
+
+                cmd_deleteDato.Parameters.AddWithValue("@id", Convert.ToInt32(cbProdAEliminar.SelectedItem.ToString()));
+
+
+                return cmd_deleteDato;
+
+            }
+        }
+
+
+
+        /*
+            
+            Metodos de cada componente
+         
+         */
+
+
+        private void btnRead_Click(object sender, EventArgs e)
+        {
+            updateDgv();
+            //se cierra conexionDB que se abrio en getDatos
+            
+        }
+
+        private void btnCreate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                
+                //crear el producto
+                SQLiteCommand cmd_createProduct = createDato();
+                if (cmd_createProduct != null && cmd_createProduct.GetType() == typeof(SQLiteCommand)) {
+                    SQLiteDataReader reader_createProduct = cmd_createProduct.ExecuteReader();
+
+                    reader_createProduct.Close();
+
+                    updateDgv();
+                }
+                
+
+
+            }
+            catch (SQLiteException ex) {
+                MessageBox.Show("Error: " + ex);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex);
+            }
+
+        }
+
         private void btnUpdate_Click(object sender, EventArgs e)
         {
 
@@ -413,55 +488,56 @@ namespace pantallaMaestra
 
         }
 
-
-
-
-
-
-        /*
-            
-            Metodos de cada componente
-         
-         */
-
-
-        private void btnRead_Click(object sender, EventArgs e)
+        //No funciona todavia xd
+        private void btnDelete_Click(object sender, EventArgs e)
         {
-            updateDgv();
-            //se cierra conexionDB que se abrio en getDatos
-            
-        }
-
-        private void btnCreate_Click(object sender, EventArgs e)
-        {
-            try
-            {
                 
-                //crear el producto
-                SQLiteCommand cmd_createProduct = createDato();
-                if (cmd_createProduct != null && cmd_createProduct.GetType() == typeof(SQLiteCommand)) {
-                    SQLiteDataReader reader_createProduct = cmd_createProduct.ExecuteReader();
+            try {
 
-                    reader_createProduct.Close();
+                SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
+                
+                SQLiteCommand cmd_deleteDato = deleteDato();
+                conexionDB.Open();
+
+
+
+                if (cmd_deleteDato != null && cmd_deleteDato.GetType() == typeof(SQLiteCommand))
+                {
+                    
+
+                    int filasAfectadas = cmd_deleteDato.ExecuteNonQuery();
+                    MessageBox.Show("Producto eliminado con exito");
+
+                    if (filasAfectadas > 0)
+                    {
+                        MessageBox.Show("se realizaron eliminaciones");
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se realizaron eliminaciones X");
+
+                    }
 
                     updateDgv();
                 }
-                
+                else
+                {
 
+                    MessageBox.Show("Error al eliminar el producto");
+
+                }
+
+                conexionDB.Close();
 
             }
-            catch (SQLiteException ex) {
-                MessageBox.Show("Error: " + ex);
+            catch (SQLiteException ex)
+            {
+                MessageBox.Show("Error (sql):\n" + ex.Message);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex);
+                MessageBox.Show("Error:\n" + ex.Message);
             }
-
         }
-
-
-
-        
     }
 }
