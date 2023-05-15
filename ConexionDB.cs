@@ -44,16 +44,8 @@ namespace pantallaMaestra
                 //cerramos la wea
                 conexion_sqlite.Close();
 
-                MessageBox.Show("conectado");
+                //MessageBox.Show("conectado");
 
-                /*
-                 CREATE TABLE "tbl_product" (
-	            "id"	INTEGER NOT NULL,
-	            "name"	TEXT NOT NULL UNIQUE,
-	            "price"	REAL NOT NULL,
-	            PRIMARY KEY("id")
-                )
-                */
 
             }
             catch (SQLiteException ex)

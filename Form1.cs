@@ -40,7 +40,7 @@ namespace pantallaMaestra
         */
 
         //se crea y se verifica un ID no repetido
-        public int verificarIDUnico()
+        public int VerificarIDUnico()
         {
             Random n = new Random();
             int id;
@@ -84,12 +84,12 @@ namespace pantallaMaestra
 
 
         //se obtienen los datos de la DB
-        public SQLiteCommand getDatos()
+        public SQLiteCommand GetDatos()
         {
             try
             {
                     SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
-                    //se abre conexionDB (se cierra en updateDgv)
+                    //se abre conexionDB (se cierra en UpdateDgv)
                     conexionDB.Open();
 
                     string getProductos = string.Format("SELECT * FROM {0}", tableName);
@@ -97,8 +97,8 @@ namespace pantallaMaestra
                     SQLiteCommand cmd_getProducts = new SQLiteCommand(getProductos, conexionDB);
 
                     //cada vez que obtengamos los datos tambien actualizamos los combo box
-                    llenarCombobox(cbProdAEliminar);
-                    llenarCombobox(cbIdAEditar);
+                    LlenarCombobox(cbProdAEliminar);
+                    LlenarCombobox(cbIdAEditar);
                 
                     
                     return cmd_getProducts;
@@ -121,18 +121,18 @@ namespace pantallaMaestra
 
         //para actualizar/mostrar los datos de la DB por si hay algun cambio, ya sea un create, update, delete o solo si se quiere obtener los elementos
         //este metodo muestra los datos en el dgv ya sea la primera vez o si hay alguna actualizacion
-        public void updateDgv()
+        public void UpdateDgv()
         {
             
             try
             {
                 SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
                 
-                SQLiteCommand cmd_getDatos = getDatos();
+                SQLiteCommand cmd_GetDatos = GetDatos();
 
                 //volviendo a abrir la DB
                 
-                SQLiteDataReader datareader_sqlite = cmd_getDatos.ExecuteReader();
+                SQLiteDataReader datareader_sqlite = cmd_GetDatos.ExecuteReader();
 
 
                 dgvDatos.Rows.Clear();
@@ -175,7 +175,7 @@ namespace pantallaMaestra
 
 
         //creando un dato
-        public SQLiteCommand createDato()
+        public SQLiteCommand CreateDato()
         {
             
             try
@@ -185,13 +185,23 @@ namespace pantallaMaestra
 
                 float precio;
 
-                if (!string.IsNullOrEmpty(txtPrecioProducto.Text) && !float.TryParse(txtPrecioProducto.Text, out precio)) {
+                if (!string.IsNullOrEmpty(txtPrecioProducto.Text) && !float.TryParse(txtPrecioProducto.Text, out precio))
+                {
                     MessageBox.Show("Error: el precio debe de ser un valor numerico");
                     return null;
                 }
-                
+
+                if (txtPrecioProducto.Text.Contains(","))
+                {
+                    MessageBox.Show("Error, no ingrese ',' en el precio");
+                    return null;
+
+                }
+
                 if (!string.IsNullOrEmpty(txtNombreProducto.Text) && !string.IsNullOrEmpty(txtPrecioProducto.Text))
                 {
+                    
+
                     //verificamos que el nombre no se repita
                     string checkUniqueName = string.Format("SELECT COUNT(name) FROM {0} WHERE name=@name", tableName);
 
@@ -205,7 +215,7 @@ namespace pantallaMaestra
                     }
 
                     //si no se repite entonces creamos el prod
-                    int id = verificarIDUnico();
+                    int id = VerificarIDUnico();
 
                     string createProducto = string.Format("INSERT INTO tbl_product (id, name, price) VALUES(@id, @nombre, @precio);", tableName);
 
@@ -245,11 +255,11 @@ namespace pantallaMaestra
         }
 
 
-        //llenar comboBox y updateDato
+        //llenar comboBox y UpdateDato
         
         //se llena los comboBox con los ids (sirve para el metodo de actualizar y eliminar)
 
-        public void llenarCombobox(ComboBox comboBox)
+        public void LlenarCombobox(ComboBox comboBox)
         {
             //llenamos los combobox con los ids disponibles
             try
@@ -278,7 +288,7 @@ namespace pantallaMaestra
                 
 
 
-                MessageBox.Show("El combo box ha sido llenado");
+                //MessageBox.Show("El combo box ha sido llenado");
                     datareader_sqlite.Close();
 
                     conexionDB.Close();
@@ -296,9 +306,9 @@ namespace pantallaMaestra
             
         }
 
-        // updateDato
+        // UpdateDato
         
-        public SQLiteCommand updateDato()
+        public SQLiteCommand UpdateDato()
         {
             string queryActualizar;
 
@@ -312,6 +322,13 @@ namespace pantallaMaestra
             {
                 MessageBox.Show("Error: el precio debe de ser un valor numerico");
                 return null;
+            }
+
+            if (txtNuevoPrecio.Text.Contains(","))
+            {
+                MessageBox.Show("Error, no ingrese ',' en el nuevo precio");
+                return null;
+
             }
 
             if (cbIdAEditar.SelectedIndex == -1)
@@ -369,16 +386,15 @@ namespace pantallaMaestra
             return cmd_actualizar;
         }
 
-        
-        //No funciona todavia xd
-        public int deleteDato()
+        //delete dato
+        public int DeleteDato()
         {
             string queryEliminarProducto = string.Format("delete from {0} where id=@id", tableName);
 
             using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB())
             {
                 conexionDB.Open();
-                using (SQLiteCommand cmd_deleteDato = new SQLiteCommand(queryEliminarProducto, conexionDB))
+                using (SQLiteCommand cmd_DeleteDato = new SQLiteCommand(queryEliminarProducto, conexionDB))
                 {
                     if (cbProdAEliminar.SelectedIndex == -1)
                     {
@@ -386,52 +402,14 @@ namespace pantallaMaestra
                         return 0;
                     }
 
-                    cmd_deleteDato.Parameters.AddWithValue("@id", Convert.ToInt32(cbProdAEliminar.SelectedItem.ToString()));
-                    int filasAfectadas = cmd_deleteDato.ExecuteNonQuery();
+                    cmd_DeleteDato.Parameters.AddWithValue("@id", Convert.ToInt32(cbProdAEliminar.SelectedItem.ToString()));
+                    int filasAfectadas = cmd_DeleteDato.ExecuteNonQuery();
                     return filasAfectadas;
                 }
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
-
-            try
-            {
-
-                using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB()) {
-
-
-                    int filasAfectadas = deleteDato();
-
-                    conexionDB.Open();
-
-
-                    if (filasAfectadas > 0)
-                    {
-                        MessageBox.Show("Producto eliminado con exito");
-                    }
-                    else
-                    { 
-                        MessageBox.Show("Error al eliminar el producto");
-                    }
-
-                    updateDgv();
-                    
-
-                    conexionDB.Close();
-                }
-
-            }
-            catch (SQLiteException ex)
-            {
-                MessageBox.Show("Error (sql):\n" + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error:\n" + ex);
-            }
-        }
+      
 
 
         /*
@@ -443,8 +421,8 @@ namespace pantallaMaestra
 
         private void btnRead_Click(object sender, EventArgs e)
         {
-            updateDgv();
-            //se cierra conexionDB que se abrio en getDatos
+            UpdateDgv();
+            //se cierra conexionDB que se abrio en GetDatos
             
         }
 
@@ -454,13 +432,13 @@ namespace pantallaMaestra
             {
                 
                 //crear el producto
-                SQLiteCommand cmd_createProduct = createDato();
+                SQLiteCommand cmd_createProduct = CreateDato();
                 if (cmd_createProduct != null && cmd_createProduct.GetType() == typeof(SQLiteCommand)) {
                     SQLiteDataReader reader_createProduct = cmd_createProduct.ExecuteReader();
 
                     reader_createProduct.Close();
 
-                    updateDgv();
+                    UpdateDgv();
                 }
                 
 
@@ -483,26 +461,26 @@ namespace pantallaMaestra
             {
                 SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB();
 
-                SQLiteCommand cmd_updateDato = updateDato();
+                SQLiteCommand cmd_UpdateDato = UpdateDato();
 
 
-                if (cmd_updateDato != null && cmd_updateDato.GetType() == typeof(SQLiteCommand))
+                if (cmd_UpdateDato != null && cmd_UpdateDato.GetType() == typeof(SQLiteCommand))
                 {
                     conexionDB.Open();
-                    int filasAfectadas = cmd_updateDato.ExecuteNonQuery();
-                    MessageBox.Show("Producto modificado con exito");
+                    int filasAfectadas = cmd_UpdateDato.ExecuteNonQuery();
+                    //MessageBox.Show("Producto modificado con exito");
 
                     if (filasAfectadas > 0)
                     {
-                        MessageBox.Show("se realizaron actualizaciones");
+                        MessageBox.Show("Producto modificado con exito");
                     }
                     else
                     {
-                        MessageBox.Show("No se realizaron actualizaciones X");
+                        MessageBox.Show("No se modificó el producto");
 
                     }
 
-                    updateDgv();
+                    UpdateDgv();
                 }
                 else
                 {
@@ -524,7 +502,47 @@ namespace pantallaMaestra
 
         }
 
-        //No funciona todavia xd
         
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+
+                using (SQLiteConnection conexionDB = new ConexionDB(DBName).ConectarDB())
+                {
+
+
+                    int filasAfectadas = DeleteDato();
+
+                    conexionDB.Open();
+
+
+                    if (filasAfectadas > 0)
+                    {
+                        MessageBox.Show("Producto eliminado con exito");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error al eliminar el producto");
+                    }
+
+                    UpdateDgv();
+
+
+                    conexionDB.Close();
+                }
+
+            }
+            catch (SQLiteException ex)
+            {
+                MessageBox.Show("Error (sql):\n" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error:\n" + ex);
+            }
+        }
+
     }
 }
